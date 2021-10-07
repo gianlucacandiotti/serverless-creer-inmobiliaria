@@ -1,7 +1,21 @@
 exports.handler = function (context, event, callback) {
   const sgMail = require("@sendgrid/mail");
   sgMail.setApiKey(context.SENDGRID_API_KEY);
-  // sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+  if (!event.name) {
+    callback("Invalid call");
+    return;
+  }
+
+  const response = new Twilio.Response();
+
+  const headers = {
+    "Access-Control-Allow-Origin": "https://creerinmobiliaria.com",
+    "Access-Control-Allow-Methods": "POST",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
+
+  response.setHeaders(headers);
 
   const message = {
     to: "agents@creerinmobiliaria.com",
@@ -23,7 +37,8 @@ exports.handler = function (context, event, callback) {
   sgMail
     .send(message)
     .then(() => {
-      callback(null, "Email sent successfully");
+      response.setBody("Email sent successfully");
+      callback(null, response);
     })
     .catch((e) => {
       console.log(e);
